@@ -3,7 +3,7 @@ import numpy as np
 import datascipy as dsp
 
 class AveragingEnsembleTestCase(unittest.TestCase):
-    """Averaging Ensemble test cases."""
+    """average_ensemble test cases."""
     
     def setUp(self):
         """Creates example targets and predictions array."""
