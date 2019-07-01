@@ -2,8 +2,11 @@ import unittest
 import numpy as np
 import datascipy as dsp
 
-class AveragingEnsembleTestCase(unittest.TestCase):
-    """average_ensemble test cases."""
+# To do:
+# make the Ensembler test case consistent with sklearn objects.
+
+class EnsemblerTestCase(unittest.TestCase):
+    """Ensembler test cases."""
     
     def setUp(self):
         """Creates example targets and predictions array."""
