@@ -1,6 +1,6 @@
-# datascipy
+# pyCompete
 
-datascipy is a python library for data scientists taking part in competitve machine learning competitions. 
+pyCompete is a python library for data scientists taking part in competitve machine learning competitions. 
 
 It is consistent with the sklearn API and can therefore drop directly into exiting workflows.
 
