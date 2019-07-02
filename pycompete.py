@@ -50,9 +50,9 @@ class Ensembler(BaseEstimator, ClassifierMixin):
         y : {array-like}, shape [n_samples]
             The target class of each sample in P.
         """
-        self.weights = weights
-        if self.weights is None:
-            self.weights = np.ones(P.shape[1])
+        self.weights_ = weights
+        if self.weights_ is None:
+            self.weights_ = np.ones(P.shape[1])
         # optimize weights if required. TODO
     
     def predict(self, P, y):
@@ -67,5 +67,5 @@ class Ensembler(BaseEstimator, ClassifierMixin):
         y : 
             Ignored
         """
-        return (P*self.weights).sum(axis=1)
+        return (P*self.weights_).sum(axis=1)
     
