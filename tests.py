@@ -71,5 +71,10 @@ class EnsemblerTestCase(unittest.TestCase):
             ensembler = compete.Ensembler()
             ensembler.fit_transform(predictions, 'example')
 
+    def test_raises_exception_with_unknown_method(self):
+        """Verifys Exception is raised when unknown method is provided."""
+        with self.assertRaises(Exception):
+            _ = compete.Ensembler(method='Unknown')
+
 if __name__ == '__main__':
     unittest.main()

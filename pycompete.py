@@ -2,32 +2,25 @@ import numpy as np
 
 #relevant sklearn imports
 from sklearn.metrics import roc_auc_score
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.base import BaseEstimator, ClassifierMixin
 
-class Ensembler(BaseEstimator, TransformerMixin):
-    """Creates an ensemble of predictions.
+class Ensembler(BaseEstimator, ClassifierMixin):
+    """Creates an (weighted) averaging ensemble of predictions.
       
     Parameters:
     -----------    
-    predictions : array-like, shape [n_samples, n_classifiers]
-                  The predictions of each of the n_classifiers.
     method : str, the method to create the ensemble with. 
              Options include: 'mean', 'weighted' or 'optimized'.
-             If 'mean' the ensemble is simply averaged.
+             If 'mean' the ensemble is averaged.
              If 'weighted' the weights parameter is used to weight the 
-             predictions of each classifier.
+             predictions of each classifier before averaging.
              If 'optimizied' the weights are optimized using cross-validation.
-    weights : {None or array-like, shape [n_classifiers]}
-              Initial weights of each classifier. If None they the initial
-              weights are set to an array of ones.
-    targets : {None or array-like, shape [n_samples]}
-              Target of each training instance.
     metric : None or function from sklearn.metric
              Metric used to evaluate the ensemble if targets is not None.
     
     Attributes:
     -----------
-    To Write.
+    weights_ : weights of each classifer used in the averaging ensemble.
 
     Examples:
     TO WRITE show a 2 model ensemble.
@@ -36,24 +29,43 @@ class Ensembler(BaseEstimator, TransformerMixin):
         - Add an option to add a sklearn model and create a stack by cross-validation.
     """
     def __init__(self,
-                 predictions,
                  method='mean',
-                 weights=None,
-                 targets=None,
                  metric=roc_auc_score):
-        self.ps = predictions
         self.method = method
-        self.weights = weights
         self.metric = metric
     
     def _reset(self):
         """Reset prediction dependent state of the scaler."""
-        pass
-        # self.weights_ = None
+        self.weights_ = None
 
-    def fit(self):
-        pass
+    def fit(self, P, y, weights=None):
+        """
+        Generates the weights to average the ensemble.
+
+        Parameters:
+        -----------
+        P : {array-like, sparse matrix}, shape [n_samples, n_classifers]
+            The independent predictions of each classifer to be used in the
+            ensemble.
+        y : {array-like}, shape [n_samples]
+            The target class of each sample in P.
+        """
+        self.weights = weights
+        if self.weights is None:
+            self.weights = np.ones(P.shape[1])
+        # optimize weights if required. TODO
     
-    def transform(self):
-        ensemble_predictions = 1
-        return ensemble_predictions
+    def predict(self, P, y):
+        """
+        Creates the prediction ensemble.
+
+        Parameters:
+        -----------
+        P : {array-like, sparse matrix}, shape [n_samples, n_classifers]
+            The independent predictions of each classifer to be used in the
+            ensemble.
+        y : 
+            Ignored
+        """
+        return (P*self.weights).sum(axis=1)
+    
