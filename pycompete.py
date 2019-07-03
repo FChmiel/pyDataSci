@@ -20,7 +20,7 @@ class Ensembler(BaseEstimator, ClassifierMixin):
         If method=="optimizied"  a weighted average ensemble is made but the 
         weights are optimized using cross-validation.
 
-    metric : {None or sklearn.metric}, (default=roc_auc_score)
+    metric : {None or callable}, (default=roc_auc_score)
         Metric used to evaluate the ensemble if targets are provided.
     
     Attributes:
@@ -35,7 +35,7 @@ class Ensembler(BaseEstimator, ClassifierMixin):
     TO WRITE show a 2 model ensemble.
 
     TO DO:
-        - Add an option to add a sklearn model and create a stack by cross-validation.
+        - Add optimizing weights code.
     """
     def __init__(self, method="mean", metric=roc_auc_score):
         self.method = method
@@ -49,7 +49,7 @@ class Ensembler(BaseEstimator, ClassifierMixin):
         """Reset prediction dependent state of the scaler."""
         self.weights_ = None
 
-    def fit(self, P, y, weights=None):
+    def fit(self, P, y, weights=None, verbose=False):
         """
         Generates the weights to average the ensemble.
 
@@ -59,8 +59,14 @@ class Ensembler(BaseEstimator, ClassifierMixin):
             The independent predictions of each classifer to be used in the
             ensemble.
 
-        y : {array-like}, shape [n_samples]
+        y : array-like, shape [n_samples]
             The target class of each sample in P.
+        
+        weights : array-like, shape [n_classifiers] (default=None)
+            Weights to apply to each classifier.
+
+        verbose : bool, (default=False)
+            Whether to print the classifier performance to screen.
         
         Returns:
         --------
@@ -74,8 +80,6 @@ class Ensembler(BaseEstimator, ClassifierMixin):
                        "each classifier in the ensemble.")
                 warnings.warn(msg, UserWarning)
         self.weights_ = weights
-
-        
 
         if self.method=='optimize':
             pass
