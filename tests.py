@@ -37,7 +37,7 @@ class EnsemblerTestCase(unittest.TestCase):
     
     def test_preserves_number_of_rows(self):
         """Verifys that averaging is performed along the columnar axis."""
-        ensembler = compete.Ensembler(method='mean')
+        ensembler = compete.Ensembler(method="mean")
         ensembler.fit(predictions, targets)
         ensemble_ps = ensembler.predict(predictions)
         self.assertTrue(ensemble_ps.shape[0]==predictions.shape[0])
@@ -46,14 +46,14 @@ class EnsemblerTestCase(unittest.TestCase):
     def test_rows_average_correctly(self):
         """Verifys that the sum of each row is correct when the mean
         method is used."""
-        ensembler = compete.Ensembler(method='mean')
+        ensembler = compete.Ensembler(method="mean")
         ensembler.fit(predictions, targets)
         ensemble_ps = ensembler.predict(predictions)
         self.assertTrue(all(ensemble_ps==true_averages))
 
     def test_weights_are_applied(self):
         """Verify correct ensembled predictions when weights applied."""
-        ensembler = compete.Ensembler(method='weighted')
+        ensembler = compete.Ensembler(method="weighted")
         ensembler.fit(predictions, targets, weights=ex_weights)
         ensemble_ps = ensembler.predict(predictions)
         self.assertTrue(all(ensemble_ps==weighted_average_predictions))
@@ -68,23 +68,23 @@ class EnsemblerTestCase(unittest.TestCase):
             ensembler.fit(predictions, 1)
         with self.assertRaises(TypeError):
             ensembler = compete.Ensembler()
-            ensembler.fit('example', targets)
+            ensembler.fit("example", targets)
         with self.assertRaises(TypeError):
             ensembler = compete.Ensembler()
-            ensembler.fit(predictions, 'example')
+            ensembler.fit(predictions, "example")
 
     def test_raises_exception_with_unknown_method(self):
         """Verifys Exception is raised when unknown method is provided."""
         with self.assertRaises(Exception):
-            _ = compete.Ensembler(method='Unknown')
+            _ = compete.Ensembler(method="Unknown")
 
     def test_warning_raised_if_no_weights_provided(self):
         """Verifys a warning is raised if weights are not provided but
-        method=='weighted"""
+        method=="weighted"."""
         with self.assertWarns(UserWarning):
-            ensembler = compete.Ensembler(method='weighted')
+            ensembler = compete.Ensembler(method="weighted")
             ensembler.fit(predictions, targets)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

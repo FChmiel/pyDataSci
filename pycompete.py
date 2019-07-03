@@ -11,13 +11,13 @@ class Ensembler(BaseEstimator, ClassifierMixin):
       
     Parameters:
     -----------    
-    method : str, optional (default='mean')
+    method : str, optional (default="mean")
         Specifies the method to used when creating the ensemble.
-        Must be one of 'mean', 'weighted' or 'optimized'.
-        If method=='mean' and averaging ensemble is made.
-        If method=='weighted' a weighted average ensemble is made, with
+        Must be one of "mean", "weighted" or "optimized".
+        If method=="mean" and averaging ensemble is made.
+        If method=="weighted" a weighted average ensemble is made, with
         user specified weights. 
-        If method=='optimizied'  a weighted average ensemble is made but the 
+        If method=="optimizied"  a weighted average ensemble is made but the 
         weights are optimized using cross-validation.
     metric : {None or sklearn.metric}, (default=roc_auc_score)
         Metric used to evaluate the ensemble if targets are provided.
@@ -35,7 +35,7 @@ class Ensembler(BaseEstimator, ClassifierMixin):
     TO DO:
         - Add an option to add a sklearn model and create a stack by cross-validation.
     """
-    def __init__(self, method='mean', metric=roc_auc_score):
+    def __init__(self, method="mean", metric=roc_auc_score):
         self.method = method
         self.metric = metric
     
@@ -55,13 +55,17 @@ class Ensembler(BaseEstimator, ClassifierMixin):
         y : {array-like}, shape [n_samples]
             The target class of each sample in P.
         """
+        # prepare the weights
         self.weights_ = weights
         if self.weights_ is None:
             self.weights_ = np.ones(P.shape[1])
-            if self.method=='weighted':
-                msg = 'No weights are provided, unity weights will be used.'
+            if self.method=="weighted":
+                msg = ("No weights provided, equal weights will be used for"
+                       "each classifier in the ensemble.")
                 warnings.warn(msg, UserWarning)
+    
         # optimize weights if required. TODO
+        
         # calculate the cv scores of the ensemble
     
     def predict(self, P, y=None):
