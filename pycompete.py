@@ -21,6 +21,7 @@ class Ensembler(BaseEstimator, ClassifierMixin):
     Attributes:
     -----------
     weights_ : weights of each classifer used in the averaging ensemble.
+    cv_scores_ : cv score of each classifier in the ensemble.
 
     Examples:
     TO WRITE show a 2 model ensemble.
@@ -54,8 +55,9 @@ class Ensembler(BaseEstimator, ClassifierMixin):
         if self.weights_ is None:
             self.weights_ = np.ones(P.shape[1])
         # optimize weights if required. TODO
+        # calculate the cv scores of the ensemble
     
-    def predict(self, P, y):
+    def predict(self, P, y=None):
         """
         Creates the prediction ensemble.
 

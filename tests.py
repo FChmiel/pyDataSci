@@ -38,7 +38,8 @@ class EnsemblerTestCase(unittest.TestCase):
     def test_preserves_number_of_rows(self):
         """Verifys that averaging is performed along the columnar axis."""
         ensembler = compete.Ensembler(method='mean')
-        ensemble_ps = ensembler.fit_transform(predictions, targets)
+        ensembler.fit(predictions, targets)
+        ensemble_ps = ensembler.predict(predictions)
         self.assertTrue(ensemble_ps.shape[0]==predictions.shape[0])
         self.assertTrue(ensemble_ps.shape[1]==1)
     
@@ -46,13 +47,15 @@ class EnsemblerTestCase(unittest.TestCase):
         """Verifys that the sum of each row is correct when the mean
         method is used."""
         ensembler = compete.Ensembler(method='mean')
-        ensemble_ps = ensembler.fit_transform(predictions, targets)
+        ensembler.fit(predictions, targets)
+        ensemble_ps = ensembler.predict(predictions)
         self.assertTrue(all(ensemble_ps==true_averages))
 
     def test_weights_are_applied(self):
         """Verify correct ensembled predictions when weights applied."""
-        ensembler = compete.Ensembler(method='weighted', weights=ex_weights)
-        ensemble_ps = ensembler.fit_transform(predictions, targets)
+        ensembler = compete.Ensembler(method='weighted')
+        ensembler.fit(predictions, targets, weights=ex_weights)
+        ensemble_ps = ensembler.predict(predictions)
         self.assertTrue(all(ensemble_ps==weighted_average_predictions))
 
     def test_only_accept_numpy_arrays(self):
@@ -60,16 +63,16 @@ class EnsemblerTestCase(unittest.TestCase):
         provided"""
         with self.assertRaises(TypeError):
             ensembler = compete.Ensembler()
-            ensembler.fit_transform(1, targets)
+            ensembler.fit(1, targets)
         with self.assertRaises(TypeError):
             ensembler = compete.Ensembler()
-            ensembler.fit_transform(predictions, 1)
+            ensembler.fit(predictions, 1)
         with self.assertRaises(TypeError):
             ensembler = compete.Ensembler()
-            ensembler.fit_transform('example', targets)
+            ensembler.fit('example', targets)
         with self.assertRaises(TypeError):
             ensembler = compete.Ensembler()
-            ensembler.fit_transform(predictions, 'example')
+            ensembler.fit(predictions, 'example')
 
     def test_raises_exception_with_unknown_method(self):
         """Verifys Exception is raised when unknown method is provided."""
