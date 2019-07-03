@@ -85,6 +85,10 @@ class EnsemblerTestCase(unittest.TestCase):
             ensembler = compete.Ensembler(method="weighted")
             ensembler.fit(predictions, targets)
 
+    def test_exception_raised_if_metric_not_function(self):
+        """Verifys an exception is raised if metric is not a function."""
+        pass
+
 
 if __name__ == "__main__":
     unittest.main()

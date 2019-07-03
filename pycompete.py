@@ -19,6 +19,7 @@ class Ensembler(BaseEstimator, ClassifierMixin):
         user specified weights. 
         If method=="optimizied"  a weighted average ensemble is made but the 
         weights are optimized using cross-validation.
+
     metric : {None or sklearn.metric}, (default=roc_auc_score)
         Metric used to evaluate the ensemble if targets are provided.
     
@@ -26,6 +27,7 @@ class Ensembler(BaseEstimator, ClassifierMixin):
     -----------
     weights_ : array-like, shape [n_classifiers]
         Weights of each classifer used in the averaging ensemble.
+
     cv_scores_ : array-like, shape [n_classifiers]
         cv score of each classifier in the ensemble.
 
@@ -37,7 +39,11 @@ class Ensembler(BaseEstimator, ClassifierMixin):
     """
     def __init__(self, method="mean", metric=roc_auc_score):
         self.method = method
-        self.metric = metric
+        if callable(metric):
+            self.metric = metric
+        else:
+            raise Exception("metric must be callable and consistent with the"
+                            "sklearn.metrics module.")
     
     def _reset(self):
         """Reset prediction dependent state of the scaler."""
@@ -52,8 +58,13 @@ class Ensembler(BaseEstimator, ClassifierMixin):
         P : {array-like, sparse matrix}, shape [n_samples, n_classifers]
             The independent predictions of each classifer to be used in the
             ensemble.
+
         y : {array-like}, shape [n_samples]
             The target class of each sample in P.
+        
+        Returns:
+        --------
+        self : object
         """
         # prepare the weights
         self.weights_ = weights
@@ -65,8 +76,10 @@ class Ensembler(BaseEstimator, ClassifierMixin):
                 warnings.warn(msg, UserWarning)
     
         # optimize weights if required. TODO
-        
+
         # calculate the cv scores of the ensemble
+    
+        return self
     
     def predict(self, P, y=None):
         """
@@ -77,8 +90,14 @@ class Ensembler(BaseEstimator, ClassifierMixin):
         P : {array-like, sparse matrix}, shape [n_samples, n_classifers]
             The independent predictions of each classifer to be used in the
             ensemble.
+
         y : 
             Ignored
+
+        Returns:
+        --------
+        ensemble_predictions: array-like
+            The predictions of the ensemble of classifiers provided in P.
         """
         return (P*self.weights_).sum(axis=1)
     
