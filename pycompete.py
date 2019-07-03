@@ -9,19 +9,23 @@ class Ensembler(BaseEstimator, ClassifierMixin):
       
     Parameters:
     -----------    
-    method : str, the method to create the ensemble with. 
-             Options include: 'mean', 'weighted' or 'optimized'.
-             If 'mean' the ensemble is averaged.
-             If 'weighted' the weights parameter is used to weight the 
-             predictions of each classifier before averaging.
-             If 'optimizied' the weights are optimized using cross-validation.
-    metric : None or function from sklearn.metric
-             Metric used to evaluate the ensemble if targets is not None.
+    method : str, optional (default='mean')
+        Specifies the method to used when creating the ensemble.
+        Must be one of 'mean', 'weighted' or 'optimized'.
+        If method=='mean' and averaging ensemble is made.
+        If method=='weighted' a weighted average ensemble is made, with
+        user specified weights. 
+        If method=='optimizied'  a weighted average ensemble is made but the 
+        weights are optimized using cross-validation.
+    metric : {None or sklearn.metric}, (default=roc_auc_score)
+        Metric used to evaluate the ensemble if targets are provided.
     
     Attributes:
     -----------
-    weights_ : weights of each classifer used in the averaging ensemble.
-    cv_scores_ : cv score of each classifier in the ensemble.
+    weights_ : array-like, shape [n_classifiers]
+        Weights of each classifer used in the averaging ensemble.
+    cv_scores_ : array-like, shape [n_classifiers]
+        cv score of each classifier in the ensemble.
 
     Examples:
     TO WRITE show a 2 model ensemble.

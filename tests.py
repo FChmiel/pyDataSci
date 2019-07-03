@@ -59,8 +59,7 @@ class EnsemblerTestCase(unittest.TestCase):
         self.assertTrue(all(ensemble_ps==weighted_average_predictions))
 
     def test_only_accept_numpy_arrays(self):
-        """Verifys TypeError exception is raised when a numpy array is not
-        provided"""
+        """Verifys TypeError exception is raised when a array is not provided"""
         with self.assertRaises(TypeError):
             ensembler = compete.Ensembler()
             ensembler.fit(1, targets)
