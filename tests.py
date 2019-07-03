@@ -78,5 +78,13 @@ class EnsemblerTestCase(unittest.TestCase):
         with self.assertRaises(Exception):
             _ = compete.Ensembler(method='Unknown')
 
+    def test_warning_raised_if_no_weights_provided(self):
+        """Verifys a warning is raised if weights are not provided but
+        method=='weighted"""
+        with self.assertWarns(UserWarning):
+            ensembler = compete.Ensembler(method='weighted')
+            ensembler.fit(predictions, targets)
+
+
 if __name__ == '__main__':
     unittest.main()

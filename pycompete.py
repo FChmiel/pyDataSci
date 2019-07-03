@@ -1,4 +1,6 @@
+import warnings
 import numpy as np
+
 
 #relevant sklearn imports
 from sklearn.metrics import roc_auc_score
@@ -33,9 +35,7 @@ class Ensembler(BaseEstimator, ClassifierMixin):
     TO DO:
         - Add an option to add a sklearn model and create a stack by cross-validation.
     """
-    def __init__(self,
-                 method='mean',
-                 metric=roc_auc_score):
+    def __init__(self, method='mean', metric=roc_auc_score):
         self.method = method
         self.metric = metric
     
@@ -58,6 +58,9 @@ class Ensembler(BaseEstimator, ClassifierMixin):
         self.weights_ = weights
         if self.weights_ is None:
             self.weights_ = np.ones(P.shape[1])
+            if self.method=='weighted':
+                msg = 'No weights are provided, unity weights will be used.'
+                warnings.warn(msg, UserWarning)
         # optimize weights if required. TODO
         # calculate the cv scores of the ensemble
     
