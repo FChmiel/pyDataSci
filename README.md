@@ -6,6 +6,8 @@ It is consistent with the sklearn API and can therefore drop directly into exiti
 
 It contains functions to help with ensembling models, evaluating model performance and performing inital data wrangling.
 
+It's prime motivation is as a educuational side project.
+
 # Installation
 
 It will be pip installable in future iterations.
