@@ -67,15 +67,19 @@ class Ensembler(BaseEstimator, ClassifierMixin):
         self : object
         """
         # prepare the weights
-        self.weights_ = weights
-        if self.weights_ is None:
-            self.weights_ = np.ones(P.shape[1])
+        if weights is None:
+            weights = np.ones(P.shape[1])
             if self.method=="weighted":
                 msg = ("No weights provided, equal weights will be used for"
                        "each classifier in the ensemble.")
                 warnings.warn(msg, UserWarning)
-    
-        # optimize weights if required. TODO
+        self.weights_ = weights
+
+        
+
+        if self.method=='optimize':
+            pass
+            # optimize weights if required. TODO
 
         # calculate the cv scores of the ensemble
     
