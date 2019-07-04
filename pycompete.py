@@ -5,6 +5,8 @@ import numpy as np
 #relevant sklearn imports
 from sklearn.metrics import roc_auc_score
 from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
+
 
 class Ensembler(BaseEstimator, ClassifierMixin):
     """Creates an (weighted) averaging ensemble of predictions.
@@ -32,18 +34,25 @@ class Ensembler(BaseEstimator, ClassifierMixin):
         cv score of each classifier in the ensemble.
 
     Examples:
-    TO WRITE show a 2 model ensemble.
-
+    ---------
+    >>> from sklearn.datasets import load_iris
+    >>> from pycompete import Ensembler
+    >>> from sklearn.linearModel import LogisticRegression
+    >>> from sklearn.svm import SVC
+    >>> X, y = load_iris(return_X_y=True)
+    >>> linear_clf = LogisticRegressionCV(cv=5, random_state=0).fit(X, y)
+    >>> svm_clf = SVC(probability=True).fit(X, y)
+    >>> ensembler = Ensembler(method='mean')    
     TO DO:
+        - Update to work for generic number of classes
+            - (do this by using dstack)
         - Add optimizing weights code.
     """
+    _allowed_methods = ["mean", "weighted", "optimize"]
+    
     def __init__(self, method="mean", metric=roc_auc_score):
         self.method = method
-        if callable(metric):
-            self.metric = metric
-        else:
-            raise Exception("metric must be callable and consistent with the"
-                            "sklearn.metrics module.")
+        self.metric = metric
     
     def _reset(self):
         """Reset prediction dependent state of the scaler."""
@@ -72,6 +81,8 @@ class Ensembler(BaseEstimator, ClassifierMixin):
         --------
         self : object
         """
+        P, y = check_X_y(P, y, accept_sparse=True)
+
         # prepare the weights
         if weights is None:
             weights = np.ones(P.shape[1])
@@ -82,7 +93,8 @@ class Ensembler(BaseEstimator, ClassifierMixin):
         self.weights_ = weights
 
         if self.method=='optimize':
-            pass
+            msg = ("Optimization of weights is not yet implemented.")
+            raise Exception(msg)
             # optimize weights if required. TODO
 
         # calculate the cv scores of the ensemble
@@ -107,5 +119,7 @@ class Ensembler(BaseEstimator, ClassifierMixin):
         ensemble_predictions: array-like
             The predictions of the ensemble of classifiers provided in P.
         """
-        return (P*self.weights_).sum(axis=1)
+        check_is_fitted(self, 'weights_')
+        P = check_array(P)
+        return (P*self.weights_).mean(axis=1)
     
