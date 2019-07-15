@@ -108,22 +108,18 @@ class BinaryEnsembler(BaseEstimator, ClassifierMixin):
 
         if self.method=='optimize':
             ensemble_score = 0 # higher score is better
-            # check how individual model performs
-            for i in range(P.shape[1]):
-                ws = np.zeros(P.shape[1])
-                ws[i] = 1
+            num_clf = P.shape[1]
+            # check how individual models performs and those with random weights
+            single_model_ws = np.zeros((num_clf, num_clf))
+            np.fill_diagonal(single_model_ws, 1)
+            w_arr = np.c_[single_model_ws, 
+                          np.random.rand((num_clf, init_rounds))]
+            for i in range(num_clf+init_rounds):
+                ws = w_arr[:,i] / np.sum(w_arr[:,i])
                 ps = (P*ws).mean(axis=1)
                 score = self.metric(y, ps)
                 print('Model {0} score: {1:.3f}'.format(i, score))
-                if score>ensemble_score:
-                    self.weights_ = ws
-                    ensemble_score = score
-            # random weights
-            for _ in range(init_rounds):
-                ws = np.random.rand(P.shape[1])
-                ws = ws / np.sum(ws)
-                ps = (P*ws).mean(axis=1)
-                score = self.metric(y, ps)
+                print('Weights: {}'.format(ws))
                 if score>ensemble_score:
                     self.weights_ = ws
                     ensemble_score = score
