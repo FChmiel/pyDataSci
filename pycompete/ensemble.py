@@ -40,15 +40,19 @@ class BinaryEnsembler(BaseEstimator, ClassifierMixin):
     >>> from sklearn.datasets import load_breast_cancer
     >>> from sklearn.linear_model import LogisticRegression
     >>> from sklearn.svm import SVC
+    >>> from sklearn.model_selection import train_test_split
     >>> X, y = load_breast_cancer(return_X_y=True)
-    >>> linear_clf = LogisticRegression(solver='lbfgs').fit(X, y)
-    >>> linear_ps = linear_clf.predict_proba(X)[:,1]
-    >>> svm_clf = SVC(probability=True, gamma='auto').fit(X, y)
-    >>> svm_ps = svm_clf.predict_proba(X)[:,1]
+    >>> X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2)
+    >>> linear_clf = LogisticRegression(solver='lbfgs').fit(X_train, y_train)
+    >>> linear_ps = linear_clf.predict_proba(X_test)[:,1]
+    >>> svm_clf = SVC(probability=True, gamma='auto').fit(X_train, y_train)
+    >>> svm_ps = svm_clf.predict_proba(X_test)[:,1]
     >>> ensembler = Ensembler(method='mean')
     >>> P = np.c_[linear_ps, svm_ps]
-    >>> ensembler.fit(P, y)
+    >>> ensembler.fit(P, y_test)
     >>> ensembler_predictions = ensembler.predict(P)
+    >>> print(ensembler.weights_)
 
     TO DO:
         - Add optimizing weights code.
