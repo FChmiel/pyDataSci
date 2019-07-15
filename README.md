@@ -1,4 +1,5 @@
 # pyCompete
+![build_status](https://travis-ci.org/FChmiel/pyCompete.svg?branch=master)
 
 pyCompete is a python library for data scientists taking part in competitve machine learning competitions. 
 
