@@ -1,15 +1,17 @@
 import warnings
 import numpy as np
+import itertools
 
 
 #relevant sklearn imports
 from sklearn.metrics import roc_auc_score
 from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
+from sklearn.model_selection import StratifiedKFold
 
-
-class Ensembler(BaseEstimator, ClassifierMixin):
-    """Creates an (weighted) averaging ensemble of predictions.
+class BinaryEnsembler(BaseEstimator, ClassifierMixin):
+    """Creates an (weighted) averaging ensemble of predictions for
+    a binary classification problem.
       
     Parameters:
     -----------    
@@ -35,17 +37,24 @@ class Ensembler(BaseEstimator, ClassifierMixin):
 
     Examples:
     ---------
-    >>> from sklearn.datasets import load_iris
-    >>> from pycompete import Ensembler
-    >>> from sklearn.linearModel import LogisticRegression
+    >>> from sklearn.datasets import load_breast_cancer
+    >>> from sklearn.linear_model import LogisticRegression
     >>> from sklearn.svm import SVC
-    >>> X, y = load_iris(return_X_y=True)
-    >>> linear_clf = LogisticRegressionCV(cv=5, random_state=0).fit(X, y)
-    >>> svm_clf = SVC(probability=True).fit(X, y)
-    >>> ensembler = Ensembler(method='mean')    
+    >>> from sklearn.model_selection import train_test_split
+    >>> X, y = load_breast_cancer(return_X_y=True)
+    >>> X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2)
+    >>> linear_clf = LogisticRegression(solver='lbfgs').fit(X_train, y_train)
+    >>> linear_ps = linear_clf.predict_proba(X_test)[:,1]
+    >>> svm_clf = SVC(probability=True, gamma='auto').fit(X_train, y_train)
+    >>> svm_ps = svm_clf.predict_proba(X_test)[:,1]
+    >>> ensembler = Ensembler(method='mean')
+    >>> P = np.c_[linear_ps, svm_ps]
+    >>> ensembler.fit(P, y_test)
+    >>> ensembler_predictions = ensembler.predict(P)
+    >>> print(ensembler.weights_)
+
     TO DO:
-        - Update to work for generic number of classes
-            - (do this by using dstack)
         - Add optimizing weights code.
     """
     _allowed_methods = ["mean", "weighted", "optimize"]
@@ -57,16 +66,17 @@ class Ensembler(BaseEstimator, ClassifierMixin):
     def _reset(self):
         """Reset prediction dependent state of the scaler."""
         self.weights_ = None
+        self.cv_scores_ = None
 
-    def fit(self, P, y, weights=None, verbose=False):
+    def fit(self, P, y, weights=None, verbose=False, init_rounds=10):
         """
         Generates the weights to average the ensemble.
 
         Parameters:
         -----------
         P : {array-like, sparse matrix}, shape [n_samples, n_classifers]
-            The independent predictions of each classifer to be used in the
-            ensemble.
+            The independent predictions of the positive class of each classifer
+            to be used in the ensemble.
 
         y : array-like, shape [n_samples]
             The target class of each sample in P.
@@ -76,6 +86,10 @@ class Ensembler(BaseEstimator, ClassifierMixin):
 
         verbose : bool, (default=False)
             Whether to print the classifier performance to screen.
+
+        init_rounds: int, (default=10)
+            Number of times to train ensemble with randomly initalized weights.
+            Used only if method="optimize".
         
         Returns:
         --------
@@ -93,12 +107,22 @@ class Ensembler(BaseEstimator, ClassifierMixin):
         self.weights_ = weights
 
         if self.method=='optimize':
-            msg = ("Optimization of weights is not yet implemented.")
-            raise Exception(msg)
-            # optimize weights if required. TODO
-
-        # calculate the cv scores of the ensemble
-    
+            ensemble_score = 0 # higher score is better
+            num_clf = P.shape[1]
+            # check how individual models performs and those with random weights
+            single_model_ws = np.zeros((num_clf, num_clf))
+            np.fill_diagonal(single_model_ws, 1)
+            w_arr = np.c_[single_model_ws, 
+                          np.random.rand((num_clf, init_rounds))]
+            for i in range(num_clf+init_rounds):
+                ws = w_arr[:,i] / np.sum(w_arr[:,i])
+                ps = (P*ws).mean(axis=1)
+                score = self.metric(y, ps)
+                print('Model {0} score: {1:.3f}'.format(i, score))
+                print('Weights: {}'.format(ws))
+                if score>ensemble_score:
+                    self.weights_ = ws
+                    ensemble_score = score
         return self
     
     def predict(self, P, y=None):
