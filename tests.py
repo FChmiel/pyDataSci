@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-import pycompete as compete
+import pycompete.ensemble as compete
 
 # To do:
 # make the Ensembler test case consistent with sklearn objects.
