@@ -1,13 +1,11 @@
-# pyCompete
+# pyDataSci
 ![build_status](https://travis-ci.org/FChmiel/pyCompete.svg?branch=master)
 
-pyCompete is a python library for data scientists taking part in competitve machine learning competitions. 
+pyDataSci is a python library for data scientists working on exploratory data science problems. I sue it in my work to help speed up my workflow.
 
 It is consistent with the sklearn API and can therefore drop directly into exiting workflows.
 
-It contains functions to help with ensembling models, evaluating model performance and performing inital data wrangling.
-
-It's prime motivation is as a educuational side project.
+It contains functions to help with ensembling models, evaluating model performance and performing initial data wrangling.
 
 # Installation
 
