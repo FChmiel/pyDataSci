@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(
-    name='pyCompete',
+    name='pyDataSci',
     version='0.1dev',
     packages=['pycompete',],
     license='BSD 3-Clause "New" or "Revised" License',
