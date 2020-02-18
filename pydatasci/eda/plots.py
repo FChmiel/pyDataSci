@@ -8,6 +8,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import ks_2samp
 
+# parameters for text boxes
+TBOX_PARAMS = {'facecolor':'white', 'alpha':0.75, 'linewidth':0.75,
+			   'edgecolor':'gray', 'boxstyle':'round,pad=0.5'}
+
 
 def continuous_distribution(df, feature, target):
 	"""
@@ -18,7 +22,10 @@ def continuous_distribution(df, feature, target):
 	Parameters:
 	----------
 	df, pd.DataFrame
-		Pandas dataframe
+		Pandas dataframe containing the data to plot.
+
+	feature, str
+		Name of column in df containing continuous variable to plot.
 
 	target, {str, array-like}
 		Name of the column containing the target or array containing the 
@@ -27,7 +34,7 @@ def continuous_distribution(df, feature, target):
 	Returns:
 	--------
 	fig, matplotlib.figure.Figure
-		The figure the distribution was plotted too.
+		Figure instance the distribution was plotted too.
 	"""
 
 	if type(target)==str:
@@ -50,7 +57,15 @@ def continuous_distribution(df, feature, target):
 		sns.kdeplot(df.loc[m, feature], ax=ax, shade=True, color=c)
 
 	# add text box describing distributions
+	ks_desc = "$D$ : {0:.3f}\n$p$ : {1:.3f}".format(D, p)
+	ax.text(0.66, 0.67, ks_desc, transform=ax.transAxes, bbox=TBOX_PARAMS)
+	ax.text(0.64, 0.58, 'KS 2-sample', transform=ax.transAxes, alpha=0.9)
 
+	# format the axes
+	ax.set_ylabel('Probability density')
+	ax.set_xlabel(feature)
+
+	return fig
 
 def binomial_distribution(df, feature, target):
 	"""
