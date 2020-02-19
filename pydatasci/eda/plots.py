@@ -19,6 +19,9 @@ def continuous_distribution(df, feature, target):
 	target. A Kolomogorov-Smirnov two-sample test is performed to check if 
 	the two samples are drawn from the same distribution.
 
+	A small D, or high p means we cannot reject the Null hypothesis that the
+	two distributions are drawn from the same distribution.
+
 	Parameters:
 	----------
 	df, pd.DataFrame
@@ -33,6 +36,13 @@ def continuous_distribution(df, feature, target):
 
 	Returns:
 	--------
+	D, float
+		The 2-sample KS statistic
+
+	p, float 
+		p-value for the 2-sample KS statistic. Tests the Null hypothesis that
+		the two distributions are drawn from the same distribution.
+	
 	fig, matplotlib.figure.Figure
 		Figure instance the distribution was plotted too.
 	"""
@@ -65,7 +75,7 @@ def continuous_distribution(df, feature, target):
 	ax.set_ylabel('Probability density')
 	ax.set_xlabel(feature)
 
-	return fig
+	return D, p, fig
 
 def binomial_distribution(df, feature, target):
 	"""
