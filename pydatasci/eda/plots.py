@@ -79,6 +79,41 @@ def continuous_distribution(df, feature, target):
 
 def binomial_distribution(df, feature, target):
 	"""
-	To be created.
+	Plots a binary distribution where the y-axis is the mean target 
+	for each category. The feature must have 2 categories only. A significance
+	test is performed, testing the null hypothesis that the distribution of
+	targets across each category are drawn from the same distribution.
+
+	Paramters:
+	----------
+	df, pd.DataFrame
+		Dataframe containing data to plot.
+
+	feature, str
+		Name of the column in df to plot.
+
+	target, {str, array-like}
+		Name of column in df containing the binary target or array containing
+		binary target for each instance in df.
+
+	Returns:
+	--------
 	"""
-	pass
+	if type(target)!=str:
+		df['target'] = target
+		target = 'target'
+
+	# check feature is binary
+	unique_values, counts = np.unique(df[feature].values, return_counts=True)
+	num_unique = len(unique_values)
+	if num_unique!=2:f
+		raise Exception('Feature must contain two categories only.' 
+			           f' This contains {num_unique}')
+
+	# mean value of each target for each value 
+	# can be accessed by name of the category (stored in unique_values)
+	mean_targets = df.groupby(feature)['target'].mean()
+
+	# Calculate std errors
+
+	# creat the figure
