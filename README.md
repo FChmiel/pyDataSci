@@ -1,5 +1,5 @@
 # pyDataSci
-![build_status](https://travis-ci.org/FChmiel/pyCompete.svg?branch=master)
+![build_status](https://travis-ci.org/FChmiel/pyDataSci.svg?branch=master)
 
 pyDataSci is a python library for data scientists working on (primarily)  binary classification problems using tabluar data. It contains functions to assist the exploration of and the development of prototype predictive model. The library includes:
 
