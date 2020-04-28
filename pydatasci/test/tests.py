@@ -1,6 +1,10 @@
 import unittest
 import numpy as np
+
 import pydatasci.modelling.ensemble as ensemble
+import pydatasci.modelling.model as modelling
+from sklearn.datasets import load_breast_cancer
+from sklearn.linear_model import LogisticRegression
 
 class BinaryEnsemblerTestCase(unittest.TestCase):
     """BinaryEnsembler test cases."""
@@ -77,5 +81,55 @@ class BinaryEnsemblerTestCase(unittest.TestCase):
             ensembler = ensemble.BinaryEnsembler(method="weighted")
             ensembler.fit(predictions, targets)
 
+
+class PredictFromModelTestCase(unittest.TestCase):
+    """predict_from_model test cases."""
+    
+    def setUp(self):
+        """Creates example data and pre-fitted models."""
+
+        global X, y, model
+
+        X, y = load_breast_cancer(return_X_y=True)
+        model = LogisticRegression().fit(X,y)
+
+    def tearDown(self):
+        """TearDown"""
+        pass
+    
+    def test_single_model_creates_predictions(self):
+        """Verifys that an array of the same length as y is produced when 
+        a model is provided."""
+        preds = modelling.predict_from_model(model, X)
+        self.assertTrue(len(preds)==len(y))
+
+    def test_multiple_model_creates_predictions(self):
+        """Verifys that an array of the same length as y is produced when 
+        a list of models is provided."""
+        preds = modelling.predict_from_model([model, model, model], X)
+        self.assertTrue(len(preds)==len(y))
+
+class FitModelTestCase(unittest.TestCase):
+    """fit_model test cases."""
+    
+    def setUp(self):
+        """Creates example data and pre-fitted models."""
+
+        global X, y, model, n_splits
+
+        X, y = load_breast_cancer(return_X_y=True)
+        model = LogisticRegression()
+        n_splits = 3
+
+    def tearDown(self):
+        """TearDown"""
+        pass
+    
+    def test_multiple_models_are_returned(self):
+        """Verifys that the same number of models as n_splits is returned 
+        as a list"""
+        models = modelling.fit_model(model, X)
+        self.assertTrue(len(models)==n_splits)
+        
 if __name__ == "__main__":
     unittest.main()
