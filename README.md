@@ -1,15 +1,8 @@
 # pyDataSci
 ![build_status](https://travis-ci.org/FChmiel/pyCompete.svg?branch=master)
 
-pyDataSci is a python library for data scientists working on exploratory data science problems. 
+pyDataSci is a python library for data scientists working on (primarily)  binary classification problems using tabluar data. It contains functions to assist the exploration of and the development of prototype predictive model. The library includes:
 
-
-It includes:
-- Helper functions for performing univariate feature analysis.
-- A function consistent with the sklearn API for ensembling models.
-
-It contains functions to help with ensembling models, evaluating model performance and performing initial data wrangling.
-
-# Installation
-
-It will be pip installable in future iterations.
+- Functions for performing univariate feature analysis - allowing insight into the predictive power of individauial features.
+- Wrappers allowing for the quick training and validation of models.
+- Functions to help with the logging of experiments.
