@@ -1,9 +1,6 @@
 import unittest
 import numpy as np
-import pycompete.ensemble as compete
-
-# To do:
-# make the Ensembler test case consistent with sklearn objects.
+import pydatasci.modelling.ensemble as ensemble
 
 class BinaryEnsemblerTestCase(unittest.TestCase):
     """BinaryEnsembler test cases."""
@@ -37,7 +34,7 @@ class BinaryEnsemblerTestCase(unittest.TestCase):
     
     def test_preserves_number_of_rows(self):
         """Verifys that averaging is performed along the columnar axis."""
-        ensembler = compete.BinaryEnsembler(method="mean")
+        ensembler = ensemble.BinaryEnsembler(method="mean")
         ensembler.fit(predictions, targets)
         ensemble_ps = ensembler.predict(predictions)
         self.assertTrue(ensemble_ps.shape[0]==predictions.shape[0])
@@ -45,14 +42,14 @@ class BinaryEnsemblerTestCase(unittest.TestCase):
     def test_rows_average_correctly(self):
         """Verifys that the sum of each row is correct when the mean
         method is used."""
-        ensembler = compete.BinaryEnsembler(method="mean")
+        ensembler = ensemble.BinaryEnsembler(method="mean")
         ensembler.fit(predictions, targets)
         ensemble_ps = ensembler.predict(predictions)
         self.assertTrue(all(ensemble_ps==true_averages))
 
     def test_weights_are_applied(self):
         """Verify correct ensembled predictions when weights applied."""
-        ensembler = compete.BinaryEnsembler(method="weighted")
+        ensembler = ensemble.BinaryEnsembler(method="weighted")
         ensembler.fit(predictions, targets, weights=ex_weights)
         ensemble_ps = ensembler.predict(predictions)
         self.assertTrue(all(ensemble_ps==weighted_average_predictions))
@@ -61,23 +58,23 @@ class BinaryEnsemblerTestCase(unittest.TestCase):
         """Verifys ValueError exception is raised when a array is not
         provided"""
         with self.assertRaises(ValueError):
-            ensembler = compete.BinaryEnsembler()
+            ensembler = ensemble.BinaryEnsembler()
             ensembler.fit(1, targets)
         with self.assertRaises(ValueError):
-            ensembler = compete.BinaryEnsembler()
+            ensembler = ensemble.BinaryEnsembler()
             ensembler.fit(predictions, 1)
         with self.assertRaises(ValueError):
-            ensembler = compete.BinaryEnsembler()
+            ensembler = ensemble.BinaryEnsembler()
             ensembler.fit("example", targets)
         with self.assertRaises(ValueError):
-            ensembler = compete.BinaryEnsembler()
+            ensembler = ensemble.BinaryEnsembler()
             ensembler.fit(predictions, "example")
 
     def test_warning_raised_if_no_weights_provided(self):
         """Verifys a warning is raised if weights are not provided but
         method=="weighted"."""
         with self.assertWarns(UserWarning):
-            ensembler = compete.BinaryEnsembler(method="weighted")
+            ensembler = ensemble.BinaryEnsembler(method="weighted")
             ensembler.fit(predictions, targets)
 
 if __name__ == "__main__":
