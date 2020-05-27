@@ -1,4 +1,5 @@
 """
+<<<<<<< HEAD
 Functions for quick training of models on data.
 
 pyDataSci, Helper functions for binary classification problems.
@@ -17,12 +18,17 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
+=======
+Wrappers for fitting, tuning and predicting modelling. This is useful for rapid
+prototyping of models when dealing with highly-structured data.
+>>>>>>> b2b886bea048a052c24409a63cc1bbc2428cc815
 """
 import numpy as np
 
 from xgboost import XGBClassifier
 from sklearn.model_selection import GroupKFold
 from sklearn.metrics import roc_auc_score
+from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 
 def fit_model(X, y, model=XGBClassifier, params={}, uid=None, 
               cv_splitter=GroupKFold, nsplits=5, evaluate=True):
@@ -66,6 +72,8 @@ def fit_model(X, y, model=XGBClassifier, params={}, uid=None,
     models, sklearn.base.BaseEstimater 
         Returns the fitted model(s) instance.
     """
+
+    X, y = check_X_y(X, y, accept_sparse=True)
     
     splitter = cv_splitter(n_splits=nsplits)
 
@@ -98,17 +106,31 @@ def predict_from_model(model, X):
         A pre-fit model, compatiable with the sklearn API. If the model is a
         list of models the average prediction of each model is returned.
 
+    X : np.array,
+        Training data shape (n,m) where n is the number of instances and m the
+        number of features.
+        
     Returns:
     --------
     preds : np.array,
         The predictions, length (n,) array.
     """
     try:
+<<<<<<< HEAD
         preds = model.predict_proba(X)[:,1]
+=======
+        check_is_fitted(model, 'feature_importances_')
+        preds = model.predict_proba(X)
+>>>>>>> b2b886bea048a052c24409a63cc1bbc2428cc815
     except AttributeError:
         # take average prediction of each model
         preds = np.zeros(len(X))
         num_models = len(model)
         for m in model:
+<<<<<<< HEAD
             preds += m.predict_proba(X)[:,1] / num_models        
+=======
+            check_is_fitted(model, 'feature_importances_')
+            preds += m.predict_proba(X) / num_models        
+>>>>>>> b2b886bea048a052c24409a63cc1bbc2428cc815
     return preds
