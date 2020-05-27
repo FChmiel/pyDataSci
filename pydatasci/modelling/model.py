@@ -1,4 +1,22 @@
 """
+Functions for quick training of models on data.
+
+pyDataSci, Helper functions for binary classification problems.
+
+Copyright (C) 2020  F. P. Chmiel
+
+Email:francischmiel@hotmail.co.uk
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 import numpy as np
 
@@ -59,9 +77,9 @@ def fit_model(X, y, model=XGBClassifier, params={}, uid=None,
         model = XGBClassifier(**params)
         model.fit(X_train, y_train)
         if evaluate:
-            train_preds = model.predict_proba(X_train)[:,1]
+            train_preds = predict_from_model(model, X_train)
             train_score = roc_auc_score(y_train, train_preds)
-            test_preds = model.predict_proba(X_test)[:,1]
+            test_preds = predict_from_model(model, X_test)
             test_score = roc_auc_score(y_test, test_preds)
             print(f'Training score, Fold {i}: {train_score}')
             print(f'Test score, Fold {i}: {test_score}')
@@ -86,11 +104,11 @@ def predict_from_model(model, X):
         The predictions, length (n,) array.
     """
     try:
-        preds = model.predict_proba(X)
+        preds = model.predict_proba(X)[:,1]
     except AttributeError:
         # take average prediction of each model
         preds = np.zeros(len(X))
         num_models = len(model)
         for m in model:
-            preds += m.predict_proba(X) / num_models        
+            preds += m.predict_proba(X)[:,1] / num_models        
     return preds

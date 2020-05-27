@@ -1,5 +1,5 @@
 """
-Utility functions used throughout pyDataSci
+Wrapper methods for calculating feature importance
 
 pyDataSci, Helper functions for binary classification problems.
 
@@ -18,20 +18,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
+class UnivariateFeatureimportance():
 
-# Plotting utility functions
-
-def remove_axis(ax):
-	"""
-	Removes the top and right axis from a matplotlib.Axes object.
-
-	Parameters:
-	-----------
-	ax, matplotlib.Axes
-		Axis to remove the top and right axis from.
-	"""
-	for loc in ['right', 'top']:
-		ax.spines[loc].set_visible(False)
-	for loc in ['left', 'bottom']
-		ax.yaxis.set_ticks_position(loc)
+	def __init__(self):
+		pass
+	def fit(self, X, y):
+		pass
+	def review(self):
+		pass

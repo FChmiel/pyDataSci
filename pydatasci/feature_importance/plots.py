@@ -1,7 +1,23 @@
-"""Plots used throughout the exploratory analysis pipeline.
+"""
+Plots summarizing feature importance
 
-F. P. Chmiel"""
+pyDataSci, Helper functions for binary classification problems.
 
+Copyright (C) 2020  F. P. Chmiel
+
+Email:francischmiel@hotmail.co.uk
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -106,7 +122,7 @@ def binomial_distribution(df, feature, target):
 	# check feature is binary
 	unique_values, counts = np.unique(df[feature].values, return_counts=True)
 	num_unique = len(unique_values)
-	if num_unique!=2:f
+	if num_unique!=2:
 		raise Exception('Feature must contain two categories only.' 
 			           f' This contains {num_unique}')
 
