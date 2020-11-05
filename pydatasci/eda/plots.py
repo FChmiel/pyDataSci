@@ -5,7 +5,7 @@ pyDataSci, Helper functions for binary classification problems.
 
 Copyright (C) 2020  F. P. Chmiel
 
-Email:francischmiel@hotmail.co.uk
+Email : francispeterchmiel@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,10 +23,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import ks_2samp
+from statsmodels.stats.proportion import proportion_confint, proportions_ztest
+
+import utils
 
 # parameters for text boxes
-TBOX_PARAMS = {'facecolor':'white', 'alpha':0.75, 'linewidth':0.75,
-			   'edgecolor':'gray', 'boxstyle':'round,pad=0.5'}
+TBOX_PARAMS = {'facecolor':'white',
+			   'alpha':0.75,
+			   'linewidth':0.75,
+			   'edgecolor':'gray',
+			   'boxstyle':'round,pad=0.5'}
 
 
 def continuous_distribution(df, feature, target):
@@ -93,43 +99,94 @@ def continuous_distribution(df, feature, target):
 
 	return D, p, fig
 
-def binomial_distribution(df, feature, target):
-	"""
-	Plots a binary distribution where the y-axis is the mean target 
-	for each category. The feature must have 2 categories only. A significance
-	test is performed, testing the null hypothesis that the distribution of
-	targets across each category are drawn from the same distribution.
+def binomial_distribution(df,
+                          feature,
+                          target,
+                          ylabel='Mean target',
+                          ci_method='wilson', 
+                          quiet=False):
+    """
+    Plots a binary distribution where the y-axis is the mean target 
+    for each category. The feature must have 2 categories only. A significance
+    test is performed, testing the null hypothesis that the distribution of
+    targets across each category are drawn from the same distribution.
 
-	Paramters:
-	----------
-	df, pd.DataFrame
-		Dataframe containing data to plot.
+    Paramters:
+    ----------
+    df : pd.DataFrame,
+        Dataframe containing data to plot.
 
-	feature, str
-		Name of the column in df to plot.
+    feature : str,
+        Name of the column in df to plot.
+    
+    target : {str, array-like},
+        Must be name of column in df containing the binary target or numpy 
+		array containing binary target for each instance in df.
 
-	target, {str, array-like}
-		Name of column in df containing the binary target or array containing
-		binary target for each instance in df.
+    ylabel : str (default='Mean target'),
+        Text to label the y-axis with.
+        
+    ci_method : (default=wilson),
+        Passed to statsmodels.stats.proportion.proportion_confint, method used 
+		to calculate 95 % confidence intervals.
+    
+    quiet : bool (default=False),
+        Whether to print calculated statistics to screen.
+        
+    Returns:
+    --------
+    fig : matplotlib.figure.Figure,
+        Figure object.
+    
+    ax : matplotlib.pyplot.axis,
+        Axis plotted to.
+    """
+    if type(target)!=str:
+        df['target'] = target
+        target = 'target'
 
-	Returns:
-	--------
-	"""
-	if type(target)!=str:
-		df['target'] = target
-		target = 'target'
+    # check feature is binary
+    if df[feature].nunique()!=2:
+        raise Exception('Feature must be binary.')
+        
+    # check target is binary
+    if df[target].nunique()!=2:
+        raise Exception('Target must be binary.')
 
-	# check feature is binary
-	unique_values, counts = np.unique(df[feature].values, return_counts=True)
-	num_unique = len(unique_values)
-	if num_unique!=2:
-		raise Exception('Feature must contain two categories only.' 
-			           f' This contains {num_unique}')
-
-	# mean value of each target for each value 
-	# can be accessed by name of the category (stored in unique_values)
-	mean_targets = df.groupby(feature)['target'].mean()
-
-	# Calculate std errors
-
-	# creat the figure
+    agg_df = df.groupby(feature)['target'].agg(['mean', 'count', 'sum'])
+    
+    # Calculate confidence intervals and p-value
+    nocc = agg_df['sum'] # number of occurences of event
+    nobs = agg_df['count'] # number of observations
+    ci_lower, ci_upper = proportion_confint(nocc, nobs, method=ci_method)
+    z, p = proportions_ztest(nocc, nobs, alternative='two-sided')
+    
+    if not quiet:
+        print('----'*5)
+        print('Variable:', feature)
+        print('----'*5)
+        print(agg_df)
+        print('')
+        print(f'Two-sided z score: {z:.4f}')
+        print(f'p-value: {p:.4f}')
+        print('')
+        print('ci_lower\n', ci_lower)
+        print('')
+        print('ci_upper\n', ci_upper)
+    
+    # create the plot
+    fig, ax = plt.subplots()
+    yerr = np.vstack([agg_df['mean']-ci_lower, ci_upper-agg_df['mean']])
+    ax.bar(agg_df.index,
+           agg_df['mean'],
+           yerr=yerr.reshape((-1,2)),
+           color='grey',
+           capsize=2)
+    
+    # format the plot
+    ax.set_title(f'{feature.capitalize()}, $p$: {p:.3f}', fontsize=10)
+    ax.tick_params(which='both', labelsize=8)
+    utils.remove_axis(ax)
+    ax.set_ylabel(ylabel, fontsize=9)
+    fig.set_size_inches(3.5,2.5)
+    return fig, ax
