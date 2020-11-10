@@ -23,7 +23,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import ks_2samp
-from statsmodels.stats.proportion import proportion_confint, proportions_ztest
+from statsmodels.stats.proportion import (proportion_confint, 
+                                          proportions_ztest,
+                                          proportions_chisquare)
 
 import utils
 
@@ -99,17 +101,17 @@ def continuous_distribution(df, feature, target):
 
 	return D, p, fig
 
-def binomial_distribution(df,
-                          feature,
-                          target,
-                          ylabel='Mean target',
-                          ci_method='wilson', 
-                          quiet=False):
+def multinomial_variable_plot(df,
+                              feature,
+                              target,
+                              ylabel='Mean target',
+                              ci_method='wilson', 
+                              quiet=False):
     """
-    Plots a binary distribution where the y-axis is the mean target 
-    for each category. The feature must have 2 categories only. A significance
-    test is performed, testing the null hypothesis that the distribution of
-    targets across each category are drawn from the same distribution.
+    Plots a multinomial distribution (k=2 or more) where the y-axis is the mean 
+    target for each category.  A significance test is performed, testing the 
+    null hypothesis that the distribution of targets across each category are 
+    drawn from the same distribution.
 
     Paramters:
     ----------
@@ -121,14 +123,14 @@ def binomial_distribution(df,
     
     target : {str, array-like},
         Must be name of column in df containing the binary target or numpy 
-		array containing binary target for each instance in df.
+        array containing binary target for each instance in df.
 
     ylabel : str (default='Mean target'),
         Text to label the y-axis with.
         
     ci_method : (default=wilson),
         Passed to statsmodels.stats.proportion.proportion_confint, method used 
-		to calculate 95 % confidence intervals.
+        to calculate 95 % confidence intervals.
     
     quiet : bool (default=False),
         Whether to print calculated statistics to screen.
@@ -145,29 +147,36 @@ def binomial_distribution(df,
         df['target'] = target
         target = 'target'
 
-    # check feature is binary
-    if df[feature].nunique()!=2:
-        raise Exception('Feature must be binary.')
-        
     # check target is binary
     if df[target].nunique()!=2:
         raise Exception('Target must be binary.')
 
-    agg_df = df.groupby(feature)['target'].agg(['mean', 'count', 'sum'])
+    agg_df = df.groupby(feature)[target].agg(['mean', 'count', 'sum'])
     
     # Calculate confidence intervals and p-value
     nocc = agg_df['sum'] # number of occurences of event
     nobs = agg_df['count'] # number of observations
     ci_lower, ci_upper = proportion_confint(nocc, nobs, method=ci_method)
-    z, p = proportions_ztest(nocc, nobs, alternative='two-sided')
     
+    cardinality = df[feature].nunique()
+    if cardinality==2:
+        # binary variable, perform 2-sided z test
+        test_statistic, p = proportions_ztest(nocc,
+                                              nobs,
+                                              alternative='two-sided')
+        statistic_text = f'Two-sided z score: {test_statistic:.4f}'
+    else:
+        # multinomial variable, perform chi-squared test
+        test_statistic, p, _ = proportions_chisquare(nocc, nobs) 
+        statistic_text = f'Chi-squared : {test_statistic:.4f}'
+        
     if not quiet:
         print('----'*5)
         print('Variable:', feature)
         print('----'*5)
         print(agg_df)
         print('')
-        print(f'Two-sided z score: {z:.4f}')
+        print(statistic_text)
         print(f'p-value: {p:.4f}')
         print('')
         print('ci_lower\n', ci_lower)
@@ -179,7 +188,7 @@ def binomial_distribution(df,
     yerr = np.vstack([agg_df['mean']-ci_lower, ci_upper-agg_df['mean']])
     ax.bar(agg_df.index,
            agg_df['mean'],
-           yerr=yerr.reshape((-1,2)),
+           yerr=yerr,
            color='grey',
            capsize=2)
     
